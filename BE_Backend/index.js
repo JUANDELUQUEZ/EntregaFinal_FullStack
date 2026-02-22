@@ -1,6 +1,7 @@
 // Cargar variables de entorno antes que cualquier otra cosa
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 
@@ -25,12 +26,17 @@ app.get("/api/health", (req, res) => {
     .json({ mensaje: "Servidor Backend funcionando correctamente" });
 });
 
-// Integración de rutas
+// Rutas de tu API
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/externa", require("./routes/apiExterna"));
 
-// Integración de rutas
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/externa", require("./routes/apiExterna")); // AGREGA ESTA LÍNEA
+// CONFIGURACIÓN DE PRODUCCIÓN: Servir el Frontend
+const rutaFrontend = path.join(__dirname, "../FE_Frontend/dist");
+app.use(express.static(rutaFrontend));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(rutaFrontend, "index.html"));
+});
 
 // Exportar la app para las pruebas
 const PORT = process.env.PORT || 3000;
